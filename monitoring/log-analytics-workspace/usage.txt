@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./monitoring/log-analytics-workspace/main.bicep \
+  --parameters @./monitoring/log-analytics-workspace/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./monitoring/log-analytics-workspace/main.bicepparam

@@ -1,0 +1,14 @@
+// Custom email subject Operation ${data.alertContext.condition.allOf[0].dimensions[0].value} on ${data.alertContext.condition.allOf[0].dimensions[1].value}
+
+AzureActivity
+| where CategoryValue == "Administrative"
+| where tolower(OperationNameValue) has_any ("write", "delete")
+| where ActivityStatusValue in ("Success", "Succeeded", "Failure", "Failed")
+| where _ResourceId !contains "/providers/microsoft.insights/activitylogalerts/"
+| extend OperationKind = case(
+    tolower(OperationNameValue) endswith "/write", "write",
+    tolower(OperationNameValue) endswith "/delete", "delete",
+    "other"
+)
+| where OperationKind in ("write", "delete")
+| project TimeGenerated, ResourceId = tolower(_ResourceId), OperationKind, Caller, ActivityStatusValue

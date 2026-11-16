@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./network/private-dns-zone/main.bicep \
+  --parameters @./network/private-dns-zone/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./network/private-dns-zone/main.bicepparam

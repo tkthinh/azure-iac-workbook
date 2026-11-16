@@ -1,0 +1,31 @@
+name: Validate workbook
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Scan Git history for secrets
+        run: >-
+          docker run --rm
+          --user "$(id -u):$(id -g)"
+          -v "$GITHUB_WORKSPACE:/repo:ro"
+          zricethezav/gitleaks:v8.24.2@sha256:b5918eb91b8d2473cec722f066abb4352e4ffdc4ec9f4283ec143aba9ec9ebc4
+          git /repo --redact --no-banner
+      - name: Install Bicep CLI
+        run: az bicep install --version v0.46.1
+      - name: Check disclosures, compile modules, and compare parameters
+        run: python3 scripts/validate.py --compile
+      - name: Require generated templates to be current
+        run: git diff --exit-code -- '**/main.json'

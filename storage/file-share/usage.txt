@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./storage/file-share/main.bicep \
+  --parameters @./storage/file-share/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./storage/file-share/main.bicepparam

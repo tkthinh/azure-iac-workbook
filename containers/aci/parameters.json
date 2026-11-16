@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "containerGroupName": { "value": "aci-demo-sea" },
+    "containerImage": { "value": "mcr.microsoft.com/azuredocs/aci-helloworld:latest" },
+    "location": { "value": "southeastasia" },
+    "publicIpEnabled": { "value": true },
+    "tags": { "value": { "environment": "dev", "workload": "container-instance" } }
+  }
+}

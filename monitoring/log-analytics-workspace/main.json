@@ -1,0 +1,131 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "9552295183988399277"
+    }
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 63,
+      "metadata": {
+        "description": "Name of the Log Analytics workspace."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region for the workspace. Defaults to the resource group location."
+      }
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "PerGB2018",
+      "allowedValues": [
+        "PerGB2018",
+        "CapacityReservation"
+      ],
+      "metadata": {
+        "description": "Workspace SKU."
+      }
+    },
+    "retentionInDays": {
+      "type": "int",
+      "defaultValue": 30,
+      "minValue": 30,
+      "maxValue": 730,
+      "metadata": {
+        "description": "Data retention in days. OperationalInsights supports 30 to 730 days."
+      }
+    },
+    "dailyQuotaGb": {
+      "type": "int",
+      "defaultValue": -1,
+      "minValue": -1,
+      "metadata": {
+        "description": "Daily ingestion quota in GB. Use -1 to keep the quota unlimited."
+      }
+    },
+    "reservationCapacityInGbPerDay": {
+      "type": "int",
+      "defaultValue": 100,
+      "minValue": 100,
+      "metadata": {
+        "description": "Reservation capacity in GB per day. Required only when skuName is CapacityReservation."
+      }
+    },
+    "publicNetworkAccessForIngestion": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "metadata": {
+        "description": "Enable internet ingestion for agents and diagnostic settings."
+      }
+    },
+    "publicNetworkAccessForQuery": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "metadata": {
+        "description": "Enable internet query access to the workspace."
+      }
+    },
+    "disableLocalAuth": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Disable shared-key local authentication to prefer Azure AD based access."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional tags to apply to the workspace."
+      }
+    }
+  },
+  "variables": {
+    "workspaceSku": "[if(equals(parameters('skuName'), 'CapacityReservation'), createObject('name', parameters('skuName'), 'capacityReservationLevel', parameters('reservationCapacityInGbPerDay')), createObject('name', parameters('skuName')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2023-09-01",
+      "name": "[parameters('workspaceName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "sku": "[variables('workspaceSku')]",
+        "retentionInDays": "[parameters('retentionInDays')]",
+        "workspaceCapping": {
+          "dailyQuotaGb": "[parameters('dailyQuotaGb')]"
+        },
+        "publicNetworkAccessForIngestion": "[parameters('publicNetworkAccessForIngestion')]",
+        "publicNetworkAccessForQuery": "[parameters('publicNetworkAccessForQuery')]",
+        "features": {
+          "disableLocalAuth": "[parameters('disableLocalAuth')]",
+          "enableLogAccessUsingOnlyResourcePermissions": true
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "workspaceName": {
+      "type": "string",
+      "value": "[parameters('workspaceName')]"
+    },
+    "workspaceResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+    },
+    "workspaceCustomerId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '2023-09-01').customerId]"
+    }
+  }
+}

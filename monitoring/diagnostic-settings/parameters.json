@@ -1,0 +1,1 @@
+{"$schema":"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#","contentVersion":"1.0.0.0","parameters":{"diagnosticSettingName":{"value":"send-to-law"},"targetResourceId":{"value":"<target-resource-id>"},"workspaceResourceId":{"value":"<log-analytics-workspace-resource-id>"},"logCategories":{"value":[]},"metricCategories":{"value":["AllMetrics"]}}}

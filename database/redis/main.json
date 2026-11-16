@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "13808098985391352047"
+    }
+  },
+  "parameters": {
+    "cacheName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Cache for Redis instance. Must be globally unique."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for the cache. Defaults to the resource group location."
+      }
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "metadata": {
+        "description": "Cache SKU name."
+      }
+    },
+    "capacity": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 0,
+      "metadata": {
+        "description": "Cache capacity. Valid values depend on the selected SKU."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional tags to apply to the cache."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Cache/redis",
+      "apiVersion": "2024-11-01",
+      "name": "[parameters('cacheName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "enableNonSslPort": false,
+        "minimumTlsVersion": "1.2",
+        "publicNetworkAccess": "Enabled"
+      },
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "family": "[if(equals(parameters('skuName'), 'Premium'), 'P', 'C')]",
+        "capacity": "[parameters('capacity')]"
+      }
+    }
+  ],
+  "outputs": {
+    "cacheId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Cache/redis', parameters('cacheName'))]"
+    },
+    "cacheName": {
+      "type": "string",
+      "value": "[parameters('cacheName')]"
+    },
+    "hostName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Cache/redis', parameters('cacheName')), '2024-11-01').hostName]"
+    },
+    "sslPort": {
+      "type": "int",
+      "value": "[reference(resourceId('Microsoft.Cache/redis', parameters('cacheName')), '2024-11-01').sslPort]"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./identity/user-assigned-identity/main.bicep \
+  --parameters @./identity/user-assigned-identity/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./identity/user-assigned-identity/main.bicepparam

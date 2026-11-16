@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./eventing/eventgrid/main.bicep \
+  --parameters @./eventing/eventgrid/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./eventing/eventgrid/main.bicepparam

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "southeastasia"
+    },
+    "vmName": {
+      "value": "vm-ubuntu-demo"
+    },
+    "vmSize": {
+      "value": "Standard_B1ms"
+    },
+    "subnetId": {
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Network/virtualNetworks/<vnet-name>/subnets/<subnet-name>"
+    },
+    "adminUsername": {
+      "value": "azureuser"
+    },
+    "authenticationType": {
+      "value": "sshPublicKey"
+    },
+    "adminPassword": {
+      "value": ""
+    },
+    "sshPublicKey": {
+      "value": "<your-ssh-public-key>"
+    },
+    "enablePublicIp": {
+      "value": false
+    },
+    "osDiskSizeGB": {
+      "value": 64
+    },
+    "tags": {
+      "value": {
+        "autoStart": "true",
+        "environment": "dev",
+        "workload": "linux-vm"
+      }
+    }
+  }
+}

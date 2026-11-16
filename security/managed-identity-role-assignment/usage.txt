@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./security/managed-identity-role-assignment/main.bicep \
+  --parameters @./security/managed-identity-role-assignment/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./security/managed-identity-role-assignment/main.bicepparam

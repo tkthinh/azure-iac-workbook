@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "18345924866218439082"
+    }
+  },
+  "parameters": {
+    "profileName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Front Door profile."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "global",
+      "metadata": {
+        "description": "Location for the profile. Azure Front Door uses global deployment."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional tags to apply to the profile."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Cdn/profiles",
+      "apiVersion": "2024-02-01",
+      "name": "[parameters('profileName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "Standard_AzureFrontDoor"
+      }
+    }
+  ],
+  "outputs": {
+    "profileId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Cdn/profiles', parameters('profileName'))]"
+    },
+    "profileName": {
+      "type": "string",
+      "value": "[parameters('profileName')]"
+    }
+  }
+}

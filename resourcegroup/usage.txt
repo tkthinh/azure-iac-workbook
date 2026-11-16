@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment sub create \
+  --location <deployment-location> \
+  --template-file ./resourcegroup/main.bicep \
+  --parameters @./resourcegroup/parameters.json
+
+# Bicep parameters
+az deployment sub create \
+  --location <deployment-location> \
+  --parameters ./resourcegroup/main.bicepparam

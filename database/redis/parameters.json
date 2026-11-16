@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "cacheName": { "value": "redis-demo-sea-001" },
+    "location": { "value": "southeastasia" },
+    "tags": { "value": { "environment": "dev", "workload": "cache" } }
+  }
+}

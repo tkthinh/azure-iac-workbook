@@ -1,0 +1,126 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "17500109896953088853"
+    }
+  },
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Kubernetes Service cluster."
+      }
+    },
+    "dnsPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS prefix used by the managed public endpoint."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for the cluster. Defaults to the resource group location."
+      }
+    },
+    "nodeVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2s_v5",
+      "metadata": {
+        "description": "Virtual machine size for the system node pool."
+      }
+    },
+    "nodeCount": {
+      "type": "int",
+      "defaultValue": 3,
+      "minValue": 1,
+      "metadata": {
+        "description": "Initial system node count."
+      }
+    },
+    "enableAutoScaling": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable cluster autoscaler for the system node pool."
+      }
+    },
+    "minNodeCount": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "metadata": {
+        "description": "Minimum system node count when autoscaling is enabled."
+      }
+    },
+    "maxNodeCount": {
+      "type": "int",
+      "defaultValue": 5,
+      "minValue": 1,
+      "metadata": {
+        "description": "Maximum system node count when autoscaling is enabled."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional tags to apply to the cluster."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-10-01",
+      "name": "[parameters('clusterName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "dnsPrefix": "[parameters('dnsPrefix')]",
+        "enableRBAC": true,
+        "disableLocalAccounts": true,
+        "agentPoolProfiles": [
+          {
+            "name": "system",
+            "mode": "System",
+            "count": "[if(parameters('enableAutoScaling'), null(), parameters('nodeCount'))]",
+            "vmSize": "[parameters('nodeVmSize')]",
+            "osType": "Linux",
+            "type": "VirtualMachineScaleSets",
+            "enableAutoScaling": "[parameters('enableAutoScaling')]",
+            "minCount": "[if(parameters('enableAutoScaling'), parameters('minNodeCount'), null())]",
+            "maxCount": "[if(parameters('enableAutoScaling'), parameters('maxNodeCount'), null())]"
+          }
+        ],
+        "networkProfile": {
+          "networkPlugin": "azure",
+          "networkPolicy": "azure",
+          "loadBalancerSku": "standard"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "clusterId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+    },
+    "clusterName": {
+      "type": "string",
+      "value": "[parameters('clusterName')]"
+    },
+    "kubeletIdentity": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2024-10-01').identityProfile.kubeletidentity]"
+    }
+  }
+}

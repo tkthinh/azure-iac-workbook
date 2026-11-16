@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./eventing/servicebus/main.bicep \
+  --parameters @./eventing/servicebus/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./eventing/servicebus/main.bicepparam

@@ -1,0 +1,25 @@
+# Local Azure state and credentials
+.azure/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+*.local.json
+*.local.bicepparam
+parameters.local.*
+*.log
+
+# Editor and Python state
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# ARM main.json files are intentionally tracked build artifacts.

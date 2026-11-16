@@ -1,0 +1,78 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "17549797256331815234"
+    }
+  },
+  "parameters": {
+    "diagnosticSettingName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the diagnostic setting."
+      }
+    },
+    "targetResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the resource emitting diagnostics."
+      }
+    },
+    "workspaceResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the destination Log Analytics workspace."
+      }
+    },
+    "logCategories": {
+      "type": "array",
+      "metadata": {
+        "description": "Diagnostic log categories to enable."
+      }
+    },
+    "metricCategories": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Diagnostic metric categories to enable."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2021-05-01-preview",
+      "name": "[parameters('diagnosticSettingName')]",
+      "properties": {
+        "copy": [
+          {
+            "name": "logs",
+            "count": "[length(parameters('logCategories'))]",
+            "input": {
+              "category": "[parameters('logCategories')[copyIndex('logs')]]",
+              "enabled": true
+            }
+          },
+          {
+            "name": "metrics",
+            "count": "[length(parameters('metricCategories'))]",
+            "input": {
+              "category": "[parameters('metricCategories')[copyIndex('metrics')]]",
+              "enabled": true
+            }
+          }
+        ],
+        "workspaceId": "[parameters('workspaceResourceId')]"
+      }
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Insights/diagnosticSettings', parameters('diagnosticSettingName'))]"
+    }
+  }
+}

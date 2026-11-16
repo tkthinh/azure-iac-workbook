@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serverName": { "value": "psql-demo-sea-001" },
+    "entraAdministratorObjectId": { "value": "<entra-administrator-object-id>" },
+    "entraAdministratorPrincipalName": { "value": "<entra-administrator-sign-in-name>" },
+    "location": { "value": "southeastasia" },
+    "tags": { "value": { "environment": "dev", "workload": "database" } }
+  }
+}

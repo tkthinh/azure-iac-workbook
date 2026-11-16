@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serverName": { "value": "mysql-demo-sea-001" },
+    "administratorLogin": { "value": "dbadmin" },
+    "administratorPassword": { "value": "<supply-securely-at-deployment>" },
+    "location": { "value": "southeastasia" },
+    "tags": { "value": { "environment": "dev", "workload": "database" } }
+  }
+}

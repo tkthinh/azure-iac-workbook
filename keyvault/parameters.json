@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vaultName": { "value": "kv-demo-sea-001" },
+    "location": { "value": "southeastasia" },
+    "tags": { "value": { "environment": "dev", "workload": "secrets" } }
+  }
+}

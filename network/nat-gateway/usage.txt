@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./network/nat-gateway/main.bicep \
+  --parameters @./network/nat-gateway/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./network/nat-gateway/main.bicepparam

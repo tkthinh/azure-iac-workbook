@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./vm/ubuntu24/main.bicep \
+  --parameters @./vm/ubuntu24/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./vm/ubuntu24/main.bicepparam

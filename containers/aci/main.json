@@ -1,0 +1,137 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "18260733279393678643"
+    }
+  },
+  "parameters": {
+    "containerGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the container group."
+      }
+    },
+    "containerImage": {
+      "type": "string",
+      "metadata": {
+        "description": "Container image, including registry hostname when applicable."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for the container group. Defaults to the resource group location."
+      }
+    },
+    "cpu": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "CPU cores allocated to the container."
+      }
+    },
+    "memoryInGb": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "Memory in GB allocated to the container."
+      }
+    },
+    "port": {
+      "type": "int",
+      "defaultValue": 80,
+      "metadata": {
+        "description": "Port exposed by the container."
+      }
+    },
+    "publicIpEnabled": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Expose the container group on a public IP address."
+      }
+    },
+    "restartPolicy": {
+      "type": "string",
+      "defaultValue": "Always",
+      "allowedValues": [
+        "Always",
+        "OnFailure",
+        "Never"
+      ],
+      "metadata": {
+        "description": "Container restart policy."
+      }
+    },
+    "environmentVariables": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Optional non-secret environment variables. Use objects with name and value properties."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional tags to apply to the container group."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('containerGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "osType": "Linux",
+        "restartPolicy": "[parameters('restartPolicy')]",
+        "containers": [
+          {
+            "name": "app",
+            "properties": {
+              "image": "[parameters('containerImage')]",
+              "resources": {
+                "requests": {
+                  "cpu": "[parameters('cpu')]",
+                  "memoryInGB": "[parameters('memoryInGb')]"
+                }
+              },
+              "ports": [
+                {
+                  "port": "[parameters('port')]"
+                }
+              ],
+              "environmentVariables": "[parameters('environmentVariables')]"
+            }
+          }
+        ],
+        "ipAddress": "[if(parameters('publicIpEnabled'), createObject('type', 'Public', 'ports', createArray(createObject('protocol', 'TCP', 'port', parameters('port')))), null())]"
+      }
+    }
+  ],
+  "outputs": {
+    "containerGroupId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ContainerInstance/containerGroups', parameters('containerGroupName'))]"
+    },
+    "containerGroupName": {
+      "type": "string",
+      "value": "[parameters('containerGroupName')]"
+    },
+    "ipAddress": {
+      "type": "string",
+      "value": "[if(parameters('publicIpEnabled'), reference(resourceId('Microsoft.ContainerInstance/containerGroups', parameters('containerGroupName')), '2023-05-01').ipAddress.ip, '')]"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+# Azure CLI essential commands
+
+# Login
+az login
+
+# Set subscription
+az account list -o table
+az account set --subscription "<subscription-id-or-name>"
+
+# Create resource group
+az group create --name "<rg-name>" --location "<azure-region>"
+
+# Set default resource group and location
+az config set defaults.group="<rg-name>" defaults.location="<azure-region>"
+
+# List resources in a group
+az resource list --resource-group "<rg-name>" -o table
+
+# Get resource group details
+az group show --name "<rg-name>" -o table
+
+# List resource groups
+az group list -o table
+
+# Delete resource group (dangerous)
+az group delete --name "<rg-name>" --yes --no-wait
+
+# Storage account (general purpose v2)
+az storage account create --name "<storage-name>" --resource-group "<rg-name>" \
+  --location "<azure-region>" --sku Standard_LRS --kind StorageV2
+
+# Virtual network and subnet
+az network vnet create --resource-group "<rg-name>" --name "<vnet-name>" \
+  --address-prefixes "10.0.0.0/16" --subnet-name "<subnet-name>" \
+  --subnet-prefixes "10.0.1.0/24"
+
+# Network security group and rule
+az network nsg create --resource-group "<rg-name>" --name "<nsg-name>"
+az network nsg rule create --resource-group "<rg-name>" --nsg-name "<nsg-name>" \
+  --name "AllowSSH" --priority 1000 --access Allow --direction Inbound \
+  --protocol Tcp --destination-port-ranges 22 --source-address-prefixes "<trusted-admin-ip>/32"
+
+# Public IP and NIC (for VM)
+az network public-ip create --resource-group "<rg-name>" --name "<pip-name>" \
+  --sku Standard --allocation-method Static
+az network nic create --resource-group "<rg-name>" --name "<nic-name>" \
+  --vnet-name "<vnet-name>" --subnet "<subnet-name>" \
+  --network-security-group "<nsg-name>" --public-ip-address "<pip-name>"
+
+# Virtual machine (Ubuntu)
+az vm create --resource-group "<rg-name>" --name "<vm-name>" --nics "<nic-name>" \
+  --image UbuntuLTS --admin-username "azureuser" --generate-ssh-keys
+
+# Key Vault
+az keyvault create --name "<kv-name>" --resource-group "<rg-name>" \
+  --location "<azure-region>" --sku standard
+
+# Key Vault secret
+az keyvault secret set --vault-name "<kv-name>" --name "<secret-name>" --value "<secret-value>"
+
+# Example tags (do not bypass security policies)
+--tags environment=dev workload=iac-workbook

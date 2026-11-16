@@ -1,0 +1,10 @@
+# JSON parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --template-file ./network/private-endpoint/main.bicep \
+  --parameters @./network/private-endpoint/parameters.json
+
+# Bicep parameters
+az deployment group create \
+  --resource-group <rg-name> \
+  --parameters ./network/private-endpoint/main.bicepparam

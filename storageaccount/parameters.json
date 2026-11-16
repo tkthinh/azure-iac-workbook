@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": { "value": "stprodsea01" },
+    "location": { "value": "southeastasia" },
+    "skuName": { "value": "Standard_LRS" },
+    "kind": { "value": "StorageV2" },
+    "accessTier": { "value": "Hot" },
+    "minimumTlsVersion": { "value": "TLS1_2" },
+    "publicNetworkAccess": { "value": "Enabled" },
+    "allowBlobPublicAccess": { "value": false },
+    "allowSharedKeyAccess": { "value": true },
+    "tags": { "value": { "environment": "prod", "workload": "shared-storage" } }
+  }
+}

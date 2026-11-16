@@ -1,0 +1,196 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "8761521588851196303"
+    }
+  },
+  "parameters": {
+    "planName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the App Service plan."
+      }
+    },
+    "webAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the web app."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for the resources. Defaults to the resource group location."
+      }
+    },
+    "planTier": {
+      "type": "string",
+      "defaultValue": "Premium",
+      "allowedValues": [
+        "Free",
+        "Basic",
+        "Premium"
+      ],
+      "metadata": {
+        "description": "App Service plan tier. Select Free (F1), Basic (B1-B3), or Premium (P0v3-P3v3)."
+      }
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "P0v3",
+      "metadata": {
+        "description": "App Service plan SKU name. Use a SKU compatible with planTier, for example F1, B1, or P0v3."
+      }
+    },
+    "osType": {
+      "type": "string",
+      "defaultValue": "Linux",
+      "allowedValues": [
+        "Linux",
+        "Windows"
+      ],
+      "metadata": {
+        "description": "Operating system for the App Service plan and web app."
+      }
+    },
+    "linuxFxVersion": {
+      "type": "string",
+      "defaultValue": "DOTNETCORE|8.0",
+      "metadata": {
+        "description": "Runtime stack for Linux web apps. Examples: DOTNETCORE|8.0, PHP|8.2, NODE|20-lts, TOMCAT|9.0-jre8, or PYTHON|3.11."
+      }
+    },
+    "windowsRuntime": {
+      "type": "object",
+      "defaultValue": {
+        "netFrameworkVersion": "v8.0"
+      },
+      "metadata": {
+        "description": "Runtime settings for Windows web apps. Use the setting for the selected language, for example {netFrameworkVersion: 'v8.0'}, {phpVersion: '8.2'}, {nodeVersion: '~20'}, or {javaVersion: '17', javaContainer: 'TOMCAT', javaContainerVersion: '9.0'}. Python is supported on Linux only."
+      }
+    },
+    "appSettings": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional app settings, provided as a key-value object."
+      }
+    },
+    "enableVnetIntegration": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable regional outbound VNet integration."
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "VNet containing the integration subnet."
+      }
+    },
+    "integrationSubnetName": {
+      "type": "string",
+      "defaultValue": "app-integration",
+      "metadata": {
+        "description": "Subnet used for regional VNet integration."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional tags to apply to both resources."
+      }
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "appSettingsList",
+        "count": "[length(items(parameters('appSettings')))]",
+        "input": {
+          "name": "[items(parameters('appSettings'))[copyIndex('appSettingsList')].key]",
+          "value": "[string(items(parameters('appSettings'))[copyIndex('appSettingsList')].value)]"
+        }
+      }
+    ],
+    "skuTier": "[if(equals(parameters('planTier'), 'Premium'), 'PremiumV3', parameters('planTier'))]",
+    "commonSiteConfig": {
+      "minTlsVersion": "1.2",
+      "ftpsState": "Disabled",
+      "appSettings": "[variables('appSettingsList')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2024-04-01",
+      "name": "[parameters('planName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "tier": "[variables('skuTier')]"
+      },
+      "properties": {
+        "reserved": "[equals(parameters('osType'), 'Linux')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2024-04-01",
+      "name": "[parameters('webAppName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('planName'))]",
+        "httpsOnly": true,
+        "siteConfig": "[if(equals(parameters('osType'), 'Linux'), union(variables('commonSiteConfig'), createObject('linuxFxVersion', parameters('linuxFxVersion'))), union(variables('commonSiteConfig'), parameters('windowsRuntime')))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('planName'))]"
+      ]
+    },
+    {
+      "condition": "[parameters('enableVnetIntegration')]",
+      "type": "Microsoft.Web/sites/virtualNetworkConnections",
+      "apiVersion": "2024-04-01",
+      "name": "[format('{0}/{1}', parameters('webAppName'), 'virtualNetwork')]",
+      "properties": {
+        "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('integrationSubnetName'))]",
+        "isSwift": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "webAppId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+    },
+    "webAppName": {
+      "type": "string",
+      "value": "[parameters('webAppName')]"
+    },
+    "defaultHostname": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('webAppName')), '2024-04-01').defaultHostName]"
+    },
+    "principalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('webAppName')), '2024-04-01', 'full').identity.principalId]"
+    }
+  }
+}

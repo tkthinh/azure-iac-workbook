@@ -1,0 +1,32 @@
+// No Heartbeat in 15 minute alert
+Heartbeat
+| where TimeGenerated > ago(24h)
+| summarize LastHeartbeat = max(TimeGenerated) by Computer
+| where LastHeartbeat < ago(15m)
+
+// % CPU usage alert
+InsightsMetrics
+| where Origin == "vm.azm.ms"
+| where Namespace == "Processor" and Name == "UtilizationPercentage"
+| summarize CPUPercentageAverage = avg(Val) by bin(TimeGenerated, 15m), Computer, _ResourceId
+
+// % Avail. Memory alert
+InsightsMetrics
+| where Origin == "vm.azm.ms"
+| where Namespace == "Memory" and Name == "AvailableMB"
+| extend TotalMemory = toreal(todynamic(Tags)["vm.azm.ms/memorySizeMB"]) | extend AvailableMemoryPercentage = (toreal(Val) / TotalMemory) * 100.0
+| summarize AvailableMemoryInPercentageAverage = avg(AvailableMemoryPercentage) by bin(TimeGenerated, 15m), Computer, _ResourceId
+
+// % Disk space (split by mount) alert
+InsightsMetrics
+| where Origin == "vm.azm.ms"
+| where Namespace == "LogicalDisk" and Name == "FreeSpacePercentage"
+| extend Disk=tostring(todynamic(Tags)["vm.azm.ms/mountId"])
+| summarize LogicalDiskSpacePercentageFreeAverage = avg(Val) by bin(TimeGenerated, 15m), Computer, _ResourceId, Disk
+
+// MB Disk space (split by mount) alert
+InsightsMetrics
+| where Origin == "vm.azm.ms"
+| where Namespace == "LogicalDisk" and Name == "FreeSpaceMB"
+| extend Disk=tostring(todynamic(Tags)["vm.azm.ms/mountId"])
+| summarize LogicalDiskSpacePercentageFreeMB = avg(Val) by bin(TimeGenerated, 15m), Computer, _ResourceId, Disk
